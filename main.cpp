@@ -12,36 +12,8 @@ class Grid {
                 }
             }
         }
-        void fill(int position, int player){
-            switch (position){  // Setting the value at the position with the player 0 or 1
-                case 1:
-                    displayArray[0][0] = player? 'X' : 'O';
-                    break;
-                case 2:
-                    displayArray[0][1] = player? 'X' : 'O';
-                    break;
-                case 3:
-                    displayArray[0][2] = player? 'X' : 'O';
-                    break;
-                case 4:
-                    displayArray[1][0] = player? 'X' : 'O';
-                    break;
-                case 5:
-                    displayArray[1][1] = player? 'X' : 'O';
-                    break;
-                case 6:
-                    displayArray[1][2] = player? 'X' : 'O';
-                    break;
-                case 7:
-                    displayArray[2][0] = player? 'X' : 'O';
-                    break;
-                case 8:
-                    displayArray[2][1] = player? 'X' : 'O';
-                    break;
-                case 9:
-                    displayArray[2][2] = player? 'X' : 'O';
-                    break;
-            }
+        void fill(int posX, int posY, char player){
+            displayArray[posX][posY] = player;
         }
         void show(){    // Temperary code to show the basic grid of the game
             cout<<endl;
@@ -64,23 +36,23 @@ class Grid {
 int main(){
     Grid a;
     a.show();
-    a.fill(1,0);
+    a.fill(0,0,'0');
     a.show();
-    a.fill(2,1);
+    a.fill(0,1,'X');
     a.show();
-    a.fill(3,0);
+    a.fill(0,2,'0');
     a.show();
-    a.fill(4,1);
+    a.fill(1,0,'X');
     a.show();
-    a.fill(5,0);
+    a.fill(1,1,'0');
     a.show();
-    a.fill(6,1);
+    a.fill(1,2,'X');
     a.show();
-    a.fill(7,0);
+    a.fill(2,0,'0');
     a.show();
-    a.fill(8,1);
+    a.fill(2,1,'X');
     a.show();
-    a.fill(9,0);
+    a.fill(2,2,'0');
     a.show();
     return 0;
 }
