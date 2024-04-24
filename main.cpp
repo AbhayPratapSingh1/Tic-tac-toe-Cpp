@@ -8,15 +8,19 @@ class Grid {
     protected :
         int gridSize;
         char positionsArray[3][3];
-        char displayArray[15][15];
+        char displayArray[21][21];
+        char dottedString[21*2 + 9];
     public :
         Grid(){ // Setting the each item to ' ' to show nothing
-            gridSize = 5;
+            gridSize = 7;
             memset(positionsArray , ' ',sizeof(positionsArray));
             memset(displayArray , ' ',sizeof(displayArray));
+            memset(dottedString , '.' , sizeof(dottedString));
         }
         bool fill(int posX, int posY, int player){
-            cout<<posX<<" s "<<posY<<endl;
+            if (posX<0 || posX>2 || posY < 0 || posY>2 ){
+                return 0;
+            }
             if (positionsArray[posX][posY] == ' '){
                 for (int i=posX*gridSize; i<posX*gridSize+gridSize; i++){
                     for (int j = posY*gridSize; j<posY*gridSize+gridSize; j++){     
@@ -38,36 +42,22 @@ class Grid {
             }
             return 0;
         }
-        void showDis(char* statement){
-            for (int i=0; i<gridSize*3 ; i++){
-                for(int j =0 ; j<gridSize*3 ; j++){
-                    if (j%gridSize == 0){
-                        cout<<"||";
-                    }
-                    cout<<displayArray[i][j];
-                }
-                cout<<endl;
-            }
-            cout<<endl<<endl<<endl<<endl;
-            cout<<statement<<endl;
-        }
         void show(char* statement){    // Temperary code to show the basic grid of the game
             system("cls");
-            cout<<"Started"<<endl;
+            cout<<endl<<endl;
             for (int i=0 ; i<3*gridSize ; i++){
                 if (i%gridSize == 0 && i!= 0){
-                    cout<<"------------------------"<<endl; // Giving horizontal line for the better look
+                    cout<<dottedString<<endl; // Giving horizontal line for the better look
                 }
                 for (int j = 0 ; j<3*gridSize ; j++){
                     if(j%gridSize == 0  && j!= 0){
-                        cout<<" | ";   // giving vertical look for better view
+                        cout<<" : ";   // giving vertical look for better view
                     }
-                    cout<<displayArray[i][j];
+                    cout<<displayArray[i][j]<<" ";
                 }
                 cout<<endl;                
             }
-            cout<<"Ended"<<endl;
-            cout<<endl<<endl<<endl<<endl;
+            cout<<endl<<endl;
             cout<<statement<<endl;
         }
 };
@@ -79,7 +69,7 @@ class play : public Grid{
             char statement[300] = "O Player turn";  // statement to print in the show function
             int x,y;    // temperary way to take move input
             int player = 0;
-            while(!checkWin()){
+            while(!checkWin() && !checkDraw()){
                 this->show(statement);
                 cin>>x>>y;  // temperary way to take move input
                 if (this->fill(x,y,player)) {
@@ -91,8 +81,13 @@ class play : public Grid{
                     strcpy(statement, "Invalid Move try again");
                 }
             }
-            strcpy(statement, player ? "O" : "X");  // swaped player as player is change in the last round
-            strcat(statement, " Player Won!\n Congracts");
+            if (!checkDraw()){
+                strcpy(statement, player ? "O" : "X");  // swaped player as player is change in the last round
+                strcat(statement, " Player Won!\n Congracts");
+            }
+            else {
+                strcpy(statement , "Its a draw");
+            }
             this->show(statement);
         }
         bool checkWin(){
@@ -115,6 +110,16 @@ class play : public Grid{
                 return 1;
             }
             return 0;
+        }
+        bool checkDraw(){
+            for (int i = 0 ; i<3 ; i++){
+                for (int j=0 ; j<3 ; j++){
+                    if (positionsArray[i][j] == ' '){
+                        return 0;
+                    }
+                }
+            }
+            return 1;
         }
 };
 
