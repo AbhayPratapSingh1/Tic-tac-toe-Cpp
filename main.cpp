@@ -10,35 +10,38 @@ class Grid {
         char positionsArray[3][3];
         char displayArray[15][15];
         char dottedString[15*2 + 9];
-        int posX , posY;
+        int posY , posX;
     public :
         Grid(){ // Setting the each item to ' ' to show nothing
+            posX = 0 ;
+            posY = 0 ;
             gridSize = 5;
-            memset(positionsArray , ' ',sizeof(positionsArray));
-            memset(displayArray , ' ',sizeof(displayArray));
-            memset(dottedString , '.' , sizeof(dottedString));
+            memset(positionsArray, ' ', sizeof(positionsArray));
+            memset(displayArray, ' ', sizeof(displayArray));
+            memset(dottedString, '.', sizeof(dottedString));
         }
         bool fill(int player){
-            if (posX<0 || posX>2 || posY < 0 || posY>2 ){
+            if (posY<0 || posY>2 || posX < 0 || posX>2 ){
                 return 0;
             }
-            if (positionsArray[posX][posY] == ' '){
-                for (int i=posX*gridSize; i<posX*gridSize+gridSize; i++){
-                    for (int j = posY*gridSize; j<posY*gridSize+gridSize; j++){     
+            if (positionsArray[posY][posX] == ' '){
+                for (int i=posY*gridSize; i<posY*gridSize+gridSize; i++){
+                    for (int j = posX*gridSize; j<posX*gridSize+gridSize; j++){     
                         if (player){  // filling X in the X pattern
-                            if (i - posX*gridSize == j - posY*gridSize){  // find each location (between 0 - gridSize) in selected block of grid then turn 'X' digonally
-                                displayArray[i][j]='X';
+                            if (i - posY*gridSize == j - posX*gridSize){  // find each location (between 0 - gridSize) in selected block of grid then turn 'X' digonally
+                                displayArray[i][j]=219; // 219 ascii char black box
                             }
-                            if(i - posX*gridSize == (gridSize - (j - posY*gridSize + 1))){   //  setting 'X' to location where (0  = gridSize - 0 - 1) digonal from other side 
-                                displayArray[i][j]='X';
+                            if(i - posY*gridSize == (gridSize - (j - posX*gridSize + 1))){   //  setting 'X' to location where (0  = gridSize - 0 - 1) digonal from other side 
+                                displayArray[i][j]=219; // 219 ascii char black box
                             }
                         }
-                        else if(!(player) && (i==posX*gridSize || i==posX*gridSize + gridSize - 1 || j==posY*gridSize || j==posY*gridSize + gridSize - 1 )) {   // setting the position of outside||border of the grid with 'O' if player is 'O'
-                            displayArray[i][j] = '0';
+                        else if(!(player) && (i==posY*gridSize || i==posY*gridSize + gridSize - 1 || j==posX*gridSize || j==posX*gridSize + gridSize - 1 )) {   // setting the position of outside||border of the grid with 'O' if player is 'O'
+                            displayArray[i][j] = 219; 
+                            // 219 ascii char black box
                         }
                     }
                 }
-                positionsArray[posX][posY] = player?'X':'O';  // setting player piece to the specific location
+                positionsArray[posY][posX] = player?'X':'O';  // setting player piece to the specific location
                 return 1;
             }
             return 0;
@@ -54,7 +57,7 @@ class Grid {
                     if(j%gridSize == 0  && j!= 0){
                         cout<<"  :  ";   // giving vertical look for better view
                     }
-                    cout<<displayArray[i][j]<<" ";
+                    cout<<displayArray[i][j]<<displayArray[i][j];
                 }
                 cout<<endl;                
             }
@@ -123,29 +126,71 @@ class play : public Grid{
         }
         bool input(char* statement){
             int op = 0 , prevop = 0;
-            posX = 0 ;
-            posY = 0;
             while(1){
                 tempOptionFill();
                 this->show(statement);
                 op = _getch();
+                int temp;
                 if (op == 72){         // top
-                    posX==0 ? posX = 2 : posX -= 1;
+                    emptyLocationSet(-1,0);
                 }
                 else if (op == 75){   // left
-                    posY==0 ? posY = 2 : posY -= 1;
+                    emptyLocationSet(-1,1);
                 }
                 else if (op == 77){   // right
-                    posY==2 ? posY = 0 : posY += 1;
+                    emptyLocationSet(1,1);
                 }
                 else if (op == 80){   // down
-                    posX==2 ? posX = 0 : posX += 1;
+                    emptyLocationSet(1,0);
                 }
                 else if(op == 13){
                     return 1;
                 }
             }
         }
+        void normalisePos(){
+            if (posX == -1){  // normalising X
+                posX = 2;
+            }
+            else if(posX == 3) {
+                posX = 0;
+            } 
+            if (posY == -1){  // normalising Y
+                posY = 2;
+            }
+            else if(posY == 3) {
+                posY = 0;
+            } 
+        }
+        void emptyLocationSet(int value, bool changeX){
+            if (changeX){
+                posX += value;
+                normalisePos();  // normalising the value of the posX between 0 - 2
+                if (!(positionsArray[posY][posX]==' ')){
+                    posX += value;
+                    normalisePos();     // normalising the changes
+                }
+                if (!(positionsArray[posY][posX] == ' ')){
+                    posY += value;
+                    normalisePos();
+                    emptyLocationSet( 0, 1);
+                }
+            }
+            else {
+                posY += value;
+                normalisePos();
+                if (!(positionsArray[posY][posX]==' ')){
+                    posY += value;
+                    normalisePos();  // normalising again
+                }
+                if (!(positionsArray[posY][posX] == ' ')){
+                    posX += value;
+                    normalisePos();
+                    emptyLocationSet( 0, 0);
+                }
+            }
+        }
+
         void tempOptionFill(){  // 1 for left 2 for rigth 3 for up and 4 for down step
             int temp = 0;
             for (int i = 0 ; i<3 ; i++){
@@ -155,15 +200,26 @@ class play : public Grid{
                     } 
                 }
             }
-            if (positionsArray[posX][posY] == ' '){
-                displayArray[posX*gridSize][posY*gridSize] = '*';
+            if (positionsArray[posY][posX] == ' '){
+                displayArray[posY*gridSize][posX*gridSize] = 127;
             }
+        }
+        bool isLineEmpty(int line , bool direction){  // direction 0 -> row 1 -> column
+            if (direction){
+                if (positionsArray[0][line] != ' ' && positionsArray[1][line] != ' ' && positionsArray[2][line] != ' '  ){
+                    return 0;
+                }
+                return 1;
+            }
+            if (positionsArray[line][0] != ' ' && positionsArray[line][1] != ' ' && positionsArray[line][2] != ' '  ){
+                return 0;
+            }
+            return 1;
         }
 };
 
 int main(){
     play a;
-    // a.input("HELLO WORLD");
     a.start();
     return 0;
 }
