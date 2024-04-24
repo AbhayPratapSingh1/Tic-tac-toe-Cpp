@@ -8,16 +8,17 @@ class Grid {
     protected :
         int gridSize;
         char positionsArray[3][3];
-        char displayArray[21][21];
-        char dottedString[21*2 + 9];
+        char displayArray[15][15];
+        char dottedString[15*2 + 9];
+        int posX , posY;
     public :
         Grid(){ // Setting the each item to ' ' to show nothing
-            gridSize = 7;
+            gridSize = 5;
             memset(positionsArray , ' ',sizeof(positionsArray));
             memset(displayArray , ' ',sizeof(displayArray));
             memset(dottedString , '.' , sizeof(dottedString));
         }
-        bool fill(int posX, int posY, int player){
+        bool fill(int player){
             if (posX<0 || posX>2 || posY < 0 || posY>2 ){
                 return 0;
             }
@@ -51,7 +52,7 @@ class Grid {
                 }
                 for (int j = 0 ; j<3*gridSize ; j++){
                     if(j%gridSize == 0  && j!= 0){
-                        cout<<" : ";   // giving vertical look for better view
+                        cout<<"  :  ";   // giving vertical look for better view
                     }
                     cout<<displayArray[i][j]<<" ";
                 }
@@ -70,9 +71,8 @@ class play : public Grid{
             int x,y;    // temperary way to take move input
             int player = 0;
             while(!checkWin() && !checkDraw()){
-                this->show(statement);
-                cin>>x>>y;  // temperary way to take move input
-                if (this->fill(x,y,player)) {
+                this->input(statement);
+                if (this->fill(player)) {
                     ++player %= 2;  // this means increase value then mod by 2 :- (0+1 % 2 = 1 OR 1+1 % 2 = 0)
                     strcpy(statement, player ? "X" : "O");
                     strcat(statement, " Player Turn");
@@ -121,10 +121,49 @@ class play : public Grid{
             }
             return 1;
         }
+        bool input(char* statement){
+            int op = 0 , prevop = 0;
+            posX = 0 ;
+            posY = 0;
+            while(1){
+                tempOptionFill();
+                this->show(statement);
+                op = _getch();
+                if (op == 72){         // top
+                    posX==0 ? posX = 2 : posX -= 1;
+                }
+                else if (op == 75){   // left
+                    posY==0 ? posY = 2 : posY -= 1;
+                }
+                else if (op == 77){   // right
+                    posY==2 ? posY = 0 : posY += 1;
+                }
+                else if (op == 80){   // down
+                    posX==2 ? posX = 0 : posX += 1;
+                }
+                else if(op == 13){
+                    return 1;
+                }
+            }
+        }
+        void tempOptionFill(){  // 1 for left 2 for rigth 3 for up and 4 for down step
+            int temp = 0;
+            for (int i = 0 ; i<3 ; i++){
+                for(int j = 0 ; j<3 ; j++){
+                    if (positionsArray[i][j] == ' '){
+                        displayArray[i*gridSize][j*gridSize] = ' ';
+                    } 
+                }
+            }
+            if (positionsArray[posX][posY] == ' '){
+                displayArray[posX*gridSize][posY*gridSize] = '*';
+            }
+        }
 };
 
 int main(){
     play a;
+    // a.input("HELLO WORLD");
     a.start();
     return 0;
 }
